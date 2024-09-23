@@ -1,0 +1,137 @@
+# Case study—   Cyclist: Google Data Analytics Capstone Project
+
+
+## Job details
+
+Junor data analyst on marketing analyst team in Bike share company in Chicago 
+Traditional bikes > other bikes (8%)
+Leisure > to work (8%)
+Manager -> Lily Monero, director of marketing
+Executive team-> detail-oriented team
+2016
+5824 bicycles, 692 stations
+Single ride passes, full day passes, annual memberships
+------------casual riders--------------, -----members----------
+
+
+## Vision
+
+Maximize the number of annual memberships.
+Monero -> convert casual riders to members
+Analyze Cyclistic historical bike trip data to identify trends
+
+## Answers to find out
+
+How do annual members and casual riders use Cyclistic bikes differently?
+Why would casual riders buy Cyclistic annual memberships?
+How can Cyclistic use digital media to influence casual riders to become members?
+Assigned
+How do annual members and casual riders use Cyclistic bikes differently?
+
+## ASK
+
+What is the problem you are trying to solve?
+How can your insights drive business decisions?
+
+Business task-> how annual members and casual riders use bikes differently and increase the number of members 
+Stakeholder -> executive team
+
+Data by -> Motivate International Inc
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Where is your data located?
+	The data is located in company server.
+How is the data organized?
+	The data is organized as months in different folders.
+Are there issues with bias or credibility in this data?
+	The data is collected by a company called motive international
+How are you addressing licensing, privacy, security, and accessibility?
+We can use the data it is secured and reliable because the data is created and maintained by the bikeshare and city. And made data public so that we can make changes to the data .
+How did you verify the data’s integrity?
+	Because the data is provided by the city of Chicago. And we have a license 	agreement.
+How does it help you answer your question?
+	We have the data of casual and member riders from the dataset, so we can 	analyse the data and find the result.
+Are there any problems with the data?
+	There are so many blank spaces in the start and end station names and also in 	their ids.
+
+Data column names
+•	Ride id
+•	Rideable type
+•	Started at
+•	Ended at
+•	Start station name
+•	Start station id
+•	End station name
+•	End station id
+•	Start latitude
+•	Start longitude
+•	End latitude
+•	End longitude
+•	User type (member or casual)
+
+## Process & Analyze data
+
+here i am using google bigquery
+
+## create a table and add all data to the new table
+
+CREATE TABLE IF NOT EXISTS `case-study-434613.Cyclistic.all_trip_data` AS
+(
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2023_08`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2023_09`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2023_10`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2023_11`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2023_12`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_01`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_02`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_03`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_04`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_05`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_06`
+  UNION ALL
+  SELECT * FROM `case-study-434613.Cyclistic.trip_2024_07`
+);
+
+
+## check for the number of data 
+SELECT count(*)from `case-study-434613.Cyclistic.all_trip_data`;
+
+## see the first 10 data in the table
+SELECT * FROM `case-study-434613.Cyclistic.all_trip_data` LIMIT 10;
+
+## checking the datatypes of the columns in table
+SELECT column_name, data_type 
+from `case-study-434613.Cyclistic.INFORMATION_SCHEMA.COLUMNS`
+where table_name='all_trip_data';
+
+## delete duplicate ride_id
+CREATE or REPLACE table `case-study-434613.Cyclistic.all_trip_data` as 
+select distinct * from `case-study-434613.Cyclistic.all_trip_data`;
+
+## check for null values
+select * from `case-study-434613.Cyclistic.all_trip_data` where start_station_name is null or end_station_name is null;
+
+## Analyze
+
+## analyze the usage pattern of casual riders vs annual riders
+select member_casual,count(ride_id) as ride_count from `case-study-434613.Cyclistic.all_trip_data` group by member_casual;
+
+## calculate average ride duration for each group
+select member_casual,avg(timestamp_diff(ended_at, started_at, minute))as avg_ride_duration 
+from `case-study-434613.Cyclistic.all_trip_data` group by member_casual;
+
+## identify most popular rides
+select start_station_name, end_station_name, count(ride_id)as ride_count from `case-study-434613.Cyclistic.all_trip_data`
+group by start_station_name, end_station_name order by ride_count desc;
